@@ -101,6 +101,15 @@ form {
     border-radius: 4px;
     color: #0c4a16;
 }
+.link-container{
+    width: 100%; /* make the container take up the full width */
+    text-align: center; /* center the a tag inside of the container */
+    margin-top: 20px; /* add some space above the link */
+}
+
+.link {
+    text-decoration: none; /* remove underline from link */
+}
 
 @media (max-width: 600px) {
     .container {
