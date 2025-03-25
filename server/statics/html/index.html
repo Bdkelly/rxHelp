@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Reset</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Password Reset</h1>
+        <p>Please select your username to begin the password reset process.</p>
+        <form id="reset-form" action="/get" method="get">
+            <div class="input-group">
+                <label for="username">Username:</label>
+                <select id="username" name="key" required>
+                    <option value="" disabled selected>Select username</option>
+                    {{range .Keys}}
+                        <option value="{{.}}">{{.}}</option>
+                    {{end}}
+                </select>
+            </div>
+            
+            <button type="submit" class="submit-button">Next</button>
+        </form>
+
+        <form id="verify-form" action="/verify" method="post" style="display: none;">
+            
+            <div class="input-group">
+                <label for="code">New Password:</label>
+                <input type="text" id="code" name="code" placeholder="Enter New Password" required>
+                <input type="hidden" id="username-verify" name="username">
+            </div>
+            <button type="submit" class="submit-button">Verify Code</button>
+        </form>
+
+        <div id="reset-message" style="display: none;" class="text-center">
+             <p>Your password has been reset. Please check your console for the new password.</p>
+        </div>
+
+        <p id="error-message" class="error-message"></p>
+    </div>
+</body>
+</html>

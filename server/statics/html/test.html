@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Password Reset</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Password Reset</h1>
+
+        {{if eq .Stage "initial"}}
+        <form action="/get" method="get">
+            <div class="input-group">
+                <label for="key">Username:</label>
+                <input type="text" id="key" name="key" required>
+            </div>
+            <button type="submit" class="submit-button">Submit</button>
+        </form>
+        {{else if eq .Stage "verify"}}
+        <p>Please enter the verification code sent to {{.Value}}.</p>
+        <form action="/verify" method="post">
+            <input type="hidden" name="username" value="{{.Username}}">
+            <div class="input-group">
+                <label for="code">Verification Code:</label>
+                <input type="text" id="code" name="code" required>
+            </div>
+            <button type="submit" class="submit-button">Verify</button>
+        </form>
+        {{else if eq .Stage "reset"}}
+        <div id="reset-message">
+            <p>{{.Value}}</p>
+        </div>
+        <a href="/">Return to Home</a>
+        {{end}}
+
+        {{if .Error}}
+        <p class="error-message">{{.Error}}</p>
+        {{end}}
+    </div>
+</body>
+</html>
