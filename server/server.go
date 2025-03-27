@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"net/smtp"
 	"path/filepath"
 	"rxDB/lwdb"
 	passwordreset "rxDB/passreset"
@@ -50,6 +51,19 @@ func resetPassword(username string, db *lwdb.SimpleDB) (string, error) {
 	return newPassword, nil
 }
 
+// sendEmail sends an email using SMTP.
+func sendEmail(to, subject, body, smtpServer, smtpUser, smtpPass string, smtpPort int) error {
+	auth := smtp.PlainAuth("", smtpUser, smtpPass, smtpServer)
+	addr := fmt.Sprintf("%s:%d", smtpServer, smtpPort)
+
+	message := fmt.Sprintf("To: %s\r\nSubject: %s\r\n\r\n%s\r\n", to, subject, body)
+
+	if err := smtp.SendMail(addr, auth, smtpUser, []string{to}, []byte(message)); err != nil {
+		return err
+	}
+	return nil
+}
+
 func main() {
 	dataPath := filepath.Join("..", "lwdb", "dbData", "data.txt")
 	db := lwdb.NewSimpleDB(dataPath)
@@ -62,6 +76,12 @@ func main() {
 	}
 
 	codeStore := passwordreset.NewCodeStore()
+
+	// SMTP details from JIRA
+	smtpServer := "smtp.example.com"
+	smtpUser := "your-email@example.com"
+	smtpPass := "your-password"
+	smtpPort := 587 // or 465 for SSL
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		dataMap := db.GetData()
@@ -104,6 +124,15 @@ func main() {
 		}
 
 		fmt.Printf("Code: %s for %s\n", code, key)
+
+		// Send email with verification code
+		subject := "Password Reset Verification Code"
+		body := fmt.Sprintf("Your verification code is: %s", code)
+		if err := sendEmail(value, subject, body, smtpServer, smtpUser, smtpPass, smtpPort); err != nil {
+			log.Printf("Email send error: %v", err)
+			http.Error(w, "Failed to send email", http.StatusInternalServerError)
+			return
+		}
 
 		dataMap := db.GetData()
 		keys := make([]string, 0, len(dataMap))
